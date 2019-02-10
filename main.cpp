@@ -180,22 +180,18 @@ void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
     //if an operator
     else if (operation[i] == '+' || operation[i] == '-' || operation[i] == '*' || operation[i] == '/' || operation[i] == '^') {
       done = true;
-      
       if (operatorstackstart != NULL) {
-	while (precedenceCheck(*(operatorstackstart->getOp()), operation[i]) == true && *(operatorstackstart->getOp()) != '(') {
+	while (operatorstackstart != NULL && precedenceCheck(*(operatorstackstart->getOp()), operation[i]) == true && *(operatorstackstart->getOp()) != '(') {
 	  if (operatorstackstart != NULL) {
-	  
 	Node* n = popS(operatorstackstart);
-	
+
 	pushS(finalstack, n->getOp());
-	
 	  }
 	}
-      }  
-      
+      }
+   
       pushS(operatorstackstart, & operation[i]);
       i++;
-      
     }
 
     else if (operation[i] == '(') {
@@ -205,20 +201,28 @@ void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
     else if (operation[i] == ')') {
       while (*(operatorstackstart->getOp()) != '(') {
 	Node* n = popS(operatorstackstart);
+	
         pushS(finalstack, n->getOp());
-	i++;
+	//i++;
       }
+      i++;
       if (operatorstackstart != NULL) {
 	Node* n = popS(operatorstackstart);
+	
       }
     }
     
     
     //is a number
-    else {
+    
+    else if (operation[i] != '+' && operation[i] != '-' && operation[i] != '*' && operation[i] != '/' && operation[i] != '^' && operation[i] != '(' && operation[i] != ')' && operation[i] != ' ' && operation[i] != '\0') {
+      
       done = true;
+      
+      cout << i << endl;
       pushS(finalstack, & operation[i]);
       i++;
+      
     }
 
     
@@ -226,13 +230,13 @@ void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
 
   while (operatorstackstart != NULL) {
   Node* n = popS(operatorstackstart);
-
+  
         pushS(finalstack, n->getOp());
   }
   
   //  cout << "operator stack" << endl;
   //popStack(operatorstackstart);
-  cout << "Prefix: " << endl;
+    cout << "Prefix: " << endl;
   popStack(finalstack);
 
 }
@@ -289,8 +293,8 @@ void printPre(TreeNode* treeroot) {
   TreeNode* current = treeroot;
   if (current != NULL) {
     cout << current->getOpe() << " ";
-    printPre(current->getRight());
     printPre(current->getLeft());
+    printPre(current->getRight());
   }
   
 
@@ -299,8 +303,8 @@ void printPre(TreeNode* treeroot) {
 void printPost(TreeNode* treeroot) {
   TreeNode* current = treeroot;
   if (current != NULL) {
-    printPost(current->getRight());
     printPost(current->getLeft());
+    printPost(current->getRight());
     cout << current->getOpe() << " ";
   }
 
@@ -339,6 +343,7 @@ cout << endl;
   popQueue(queuestart);
   */
   postFix(operatorstackstart, finalstack, operation);
+  cout << "Building tree" << endl;
   buildTree(finalstack, treeroot);
   cout << "Prefix: " << endl;
   printPre(treeroot);
