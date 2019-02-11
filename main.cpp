@@ -1,9 +1,12 @@
+//Sanjana Venkat
+//2.11.19
+//Shunting yard, user enters math expression, binary tree created and postfix, prefix, and infix are outputted
 #include <iostream>
 #include <cstring>
 #include "node.h"
 
 using namespace std;
-
+//functions
 Node* pushStack(Node* stackstart, char operation[]);
 void popStack(Node* stackstart);
 Node* pushQueue(Node* queuestart, char operation[]);
@@ -14,8 +17,10 @@ Node* popS(Node* &stackstart);
 bool precedenceCheck(char op1, char op2);
 void buildTree(Node* finalstack, TreeNode* &treeroot); 
 void printPre(TreeNode* treeroot);
+void printPost(TreeNode* treeroot);
+void printIn(TreeNode* treeroot);
 
-
+//outer push stack function, pushes operators to stack
 Node* pushStack(Node* stackstart, char operation[]) {
   Node* first = stackstart;
   Node* current = stackstart;
@@ -45,7 +50,7 @@ Node* pushStack(Node* stackstart, char operation[]) {
 }
 
 
-
+//inner push function, pushes anything to stack
 void pushS(Node* &stackstart, char* operation) {
       //strcpy(symbol, operation[i]);
       Node* current = new Node(operation);
@@ -61,7 +66,7 @@ void pushS(Node* &stackstart, char* operation) {
 }
 
 
-
+//outer pop stack function, pops entire stack
 void popStack(Node* stackstart) {
   
   while (stackstart != NULL) {
@@ -71,7 +76,7 @@ void popStack(Node* stackstart) {
   cout << endl;
 }
 
-
+//inner pop stack function, pops top of stack
 Node* popS(Node* &stackstart) {
   Node* newsstart = stackstart;
   stackstart = stackstart->getNext();
@@ -80,7 +85,7 @@ Node* popS(Node* &stackstart) {
 
 
 
-
+//pushes items into queue
 Node* pushQueue(Node* queuestart, char operation[]) {
   Node* first = queuestart;
   Node* current = queuestart;
@@ -121,7 +126,7 @@ Node* pushQueue(Node* queuestart, char operation[]) {
 
 
 
-
+//pops items from queue
 void popQueue(Node* queuestart) {
   Node* current = queuestart;
   while (current != NULL) {
@@ -131,17 +136,24 @@ void popQueue(Node* queuestart) {
 }
 
 
+//checks order of operations for which of two operators has higher precedence
 bool precedenceCheck(char op1, char op2) {
 
   //op1 is the one at the top of the operator stack
   //op2 is the one being compared
   //when true is returned, op1 >= to op2
   //when false is returned op1 < op2
+
+  // ^ precedence
   if (op1 == '^') {
-    if (op2 == '+' || op2 == '-' || op2 == '*' || op2 == '/' || op2 == '^') {
+    if (op2 == '+' || op2 == '-' || op2 == '*' || op2 == '/') {
       return true;
     }
+    else if (op2 == '^') {
+      return false;
+    }
   }
+  // * / precedence
   if (op1 == '*' || op1 == '/') {
     if (op2 == '^') {
       return false;
@@ -150,6 +162,7 @@ bool precedenceCheck(char op1, char op2) {
       return true;
     }
   }
+  // + - precedence
    if (op1 == '+' || op1 == '-') {
     if (op2 == '*' || op2 == '/' || op2 == '^' || op2 == '+' || op2 == '-') {
       return false;
@@ -159,7 +172,7 @@ bool precedenceCheck(char op1, char op2) {
 
 }
 
-
+//test prefix print, not from binary tree, just to test algorithm from user input 
 void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
   int i = 0;
   bool done = false;
@@ -193,7 +206,7 @@ void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
       pushS(operatorstackstart, & operation[i]);
       i++;
     }
-
+    //if paranthesis
     else if (operation[i] == '(') {
       pushS(operatorstackstart, & operation[i]);
       i++;
@@ -219,7 +232,7 @@ void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
       
       done = true;
       
-      cout << i << endl;
+
       pushS(finalstack, & operation[i]);
       i++;
       
@@ -236,29 +249,32 @@ void postFix(Node* &operatorstackstart, Node* &finalstack, char operation[]) {
   
   //  cout << "operator stack" << endl;
   //popStack(operatorstackstart);
-    cout << "Prefix: " << endl;
-  popStack(finalstack);
+  //    cout << "Prefix: " << endl;
+  //popStack(finalstack);
 
 }
 
 
 
-
+//build binary tree
 void buildTree(Node* finalstack, TreeNode* &treeroot) {
   TreeNode* lastOp = NULL;
   bool done = false;
+  //while stack is not empty
   while (finalstack != NULL) {
     Node* t = popS(finalstack);
-
+    //sets tree root
     if (treeroot == NULL) {
       treeroot = new TreeNode(t->getOp());
       lastOp = treeroot;
     }
+    //builds rest of tree
     else {
       TreeNode* current = lastOp;
       done = false;
       while (done == false && current != NULL) {
-      if (current->getRight() == NULL) {
+	//sets right branches to tree to operators from top of stack, until reached a number
+	if (current->getRight() == NULL) {
 	TreeNode* tn = new TreeNode(t->getOp());
 	if (*(t->getOp()) == '+' || *(t->getOp()) == '-' || *(t->getOp()) == '*' || *(t->getOp()) == '/' || *(t->getOp()) == '^') {
    lastOp = tn;
@@ -268,6 +284,7 @@ void buildTree(Node* finalstack, TreeNode* &treeroot) {
 	done = true;
 
       }
+	//sets left branches to
       else if (current->getLeft() == NULL) {
 	TreeNode* tn2 = new TreeNode(t->getOp());
 	if (*(t->getOp()) == '+' || *(t->getOp()) == '-' || *(t->getOp()) == '*' || *(t->getOp()) =='/' || *(t->getOp()) == '^') {
@@ -278,6 +295,7 @@ void buildTree(Node* finalstack, TreeNode* &treeroot) {
 	done = true;
 
       }
+	//to move up the tree if both left and right are full
       else {
 	current = current->getUp();
       }
@@ -288,7 +306,7 @@ void buildTree(Node* finalstack, TreeNode* &treeroot) {
   }
 }
 
-
+//recursive prefix print from binary tree
 void printPre(TreeNode* treeroot) {
   TreeNode* current = treeroot;
   if (current != NULL) {
@@ -299,7 +317,7 @@ void printPre(TreeNode* treeroot) {
   
 
 }
-
+//recursive postfix print from binary tree
 void printPost(TreeNode* treeroot) {
   TreeNode* current = treeroot;
   if (current != NULL) {
@@ -309,8 +327,26 @@ void printPost(TreeNode* treeroot) {
   }
 
 }
+//recursive infix print from binary tree
+void printIn(TreeNode* treeroot) {
+  TreeNode* current = treeroot;
+  if (current != NULL) {
+    //if operator, print (
+    if (*(current->getOpe()) == '+' || *(current->getOpe()) == '-' || *(current->getOpe()) == '*' || *(current->getOpe()) == '/' || *(current->getOpe()) == '^' && *(current->getOpe()) == '(' && *(current->getOpe()) == ')') {
+      cout << '(' << " ";
+    }
+    //numbers and non ( )
+    printIn(current->getLeft());
+    cout << current->getOpe() << " ";
+    printIn(current->getRight());
+    // if another operator, print )
+    if (*(current->getOpe()) == '+' || *(current->getOpe()) == '-' || *(current->getOpe()) == '*' || *(current->getOpe()) == '/' || *(current->getOpe()) == '^' && *(current->getOpe()) == ')' && *(current->getOpe()) == ')') {
+      cout << ')' << " ";
+    }
+  }
+}
 
-
+  //main
 int main() {
   Node* stackstart = NULL;
   Node* queuestart = NULL;
@@ -342,6 +378,7 @@ cout << endl;
   cout << "Pop Queue" << endl;
   popQueue(queuestart);
   */
+  //functions to build tree and then output three forms
   postFix(operatorstackstart, finalstack, operation);
   cout << "Building tree" << endl;
   buildTree(finalstack, treeroot);
@@ -350,6 +387,9 @@ cout << endl;
   cout << endl;
   cout << "Postfix: " << endl;
   printPost(treeroot);
+  cout << endl;
+  cout << "Infix: " << endl;
+  printIn(treeroot);
   cout << endl;
   return 0;
 }

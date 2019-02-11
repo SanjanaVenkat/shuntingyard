@@ -1,8 +1,11 @@
+//Sanjana Venkat
+//2.11.19
+//node class and tree node class
 #include <iostream>
 #include <cstring>
 
 using namespace std;
-
+//node class for stack and queue
 class Node{
  public:
   Node(char* op);
@@ -15,7 +18,7 @@ class Node{
   char operators[1000];
 };
 
-
+//tree node class for binary tree
 class TreeNode{
 public:
   TreeNode(char* t);
